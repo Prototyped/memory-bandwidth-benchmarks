@@ -25,6 +25,7 @@ NEOVERSE_V1_COPTS      = -mcpu=neoverse-v1 -mtune=neoverse-v1
 CORTEX_A53_COPTS       = -mcpu=cortex-a53 -mtune=cortex-a53
 CORTEX_A72_COPTS       = -mcpu=cortex-a72 -mtune=cortex-a72
 WESTMERE_COPTS         = -mcpu=westmere -mtune=westmere
+HASWELL_COPTS          = -mcpu=haswell -mtune=haswell
 
 # Common Intel Compiler options that are independent of ISA
 COMMON_COPTS   = -Wall -Ofast -fopenmp -ftree-vectorize -fomit-frame-pointer -flto
@@ -35,6 +36,7 @@ NEOVERSE_V1_OBJS       = stream_neoverse_v1.o
 CORTEX_A53_OBJS        = stream_cortex_a53.o
 CORTEX_A72_OBJS        = stream_cortex_a72.o
 WESTMERE_OBJS          = stream_westmere.o
+HASWELL_OBJS           = stream_haswell.o
 
 ifdef cpu
 all: stream_$(cpu).bin
@@ -56,6 +58,8 @@ stream_cortex_a72.o: $(SRC)
 	$(CC) $(COMMON_COPTS) $(CORTEX_A72_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
 stream_westmere.o: $(SRC)
 	$(CC) $(COMMON_COPTS) $(WESTMERE_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
+stream_haswell.o: $(SRC)
+	$(CC) $(COMMON_COPTS) $(HASWELL_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
 
 
 stream_neoverse_n1.bin: $(NEOVERSE_N1_OBJS)
@@ -70,6 +74,8 @@ stream_cortex_a72.bin: $(CORTEX_A72_OBJS)
 	$(CC) $(COMMON_COPTS) $(CORTEX_A72_COPTS) $^ -o $@
 stream_westmere.bin: $(WESTMERE_OBJS)
 	$(CC) $(COMMON_COPTS) $(WESTMERE_COPTS) $^ -o $@
+stream_haswell.bin: $(HASWELL_OBJS)
+	$(CC) $(COMMON_COPTS) $(HASWELL_COPTS) $^ -o $@
 
 
 help:
