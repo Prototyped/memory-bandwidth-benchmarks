@@ -1,7 +1,7 @@
 # Copyright (C) 2021 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 
-CC  = icc
+CC  = gcc
 
 # STREAM options:
 # -DNTIMES control the number of times each stream kernel is executed
@@ -18,45 +18,52 @@ STREAM_ARRAY_SIZE = $(size)
 endif
 STREAM_CPP_OPTS  += -DSTREAM_ARRAY_SIZE=$(STREAM_ARRAY_SIZE)
 
-# Intel Compiler options to control the generated ISA
-AVX_COPTS      = -xAVX
-AVX2_COPTS     = -xCORE-AVX2
-AVX512_COPTS   = -xCORE-AVX512 -qopt-zmm-usage=high
+# gcc options to control the generated ISA
+NEOVERSE_N1_COPTS      = -mcpu=neoverse-n1 -mtune=neoverse-n1
+NEOVERSE_N2_COPTS      = -mcpu=neoverse-n2 -mtune=neoverse-n2
+NEOVERSE_V1_COPTS      = -mcpu=neoverse-v1 -mtune=neoverse-v1
+CORTEX_A53_COPTS       = -mcpu=cortex-a53 -mtune=cortex-a53
+CORTEX_A72_COPTS       = -mcpu=cortex-a72 -mtune=cortex-a72
+
 # Common Intel Compiler options that are independent of ISA
-COMMON_COPTS   = -Wall -O3 -mcmodel=medium -qopenmp -shared-intel
+COMMON_COPTS   = -Wall -Ofast -fopenmp -ftree-vectorize -fomit-frame-pointer -flto
 
-ifdef rfo
-COMMON_COPTS += -qopt-streaming-stores never -fno-builtin
-else
-COMMON_COPTS += -qopt-streaming-stores always
-endif
-
-AVX_OBJS    = stream_avx.o
-AVX2_OBJS   = stream_avx2.o
-AVX512_OBJS = stream_avx512.o
+NEOVERSE_N1_OBJS       = stream_neoverse_n1.o
+NEOVERSE_N2_OBJS       = stream_neoverse_n2.o
+NEOVERSE_V1_OBJS       = stream_neoverse_v1.o
+CORTEX_A53_OBJS        = stream_cortex_a53.o
+CORTEX_A72_OBJS        = stream_cortex_a72.o
 
 ifdef cpu
 all: stream_$(cpu).bin
 else
-all: stream_avx.bin stream_avx2.bin stream_avx512.bin
+all: stream_neoverse_n1.bin stream_neoverse_n2.bin stream_neoverse_v1.bin stream_cortex_a53.bin stream_cortex_a72.bin
 endif
 
 SRC = stream.c
 
-stream_avx.o: $(SRC)
-	$(CC) $(COMMON_COPTS) $(AVX_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
-stream_avx2.o: $(SRC)
-	$(CC) $(COMMON_COPTS) $(AVX2_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
-stream_avx512.o: $(SRC)
-	$(CC) $(COMMON_COPTS) $(AVX512_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
+stream_neoverse_n1.o: $(SRC)
+	$(CC) $(COMMON_COPTS) $(NEOVERSE_N1_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
+stream_neoverse_n2.o: $(SRC)
+	$(CC) $(COMMON_COPTS) $(NEOVERSE_N2_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
+stream_neoverse_v1.o: $(SRC)
+	$(CC) $(COMMON_COPTS) $(NEOVERSE_V1_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
+stream_cortex_a53.o: $(SRC)
+	$(CC) $(COMMON_COPTS) $(CORTEX_A53_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
+stream_cortex_a72.o: $(SRC)
+	$(CC) $(COMMON_COPTS) $(CORTEX_A72_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
 
 
-stream_avx.bin: $(AVX_OBJS)
-	$(CC) $(COMMON_COPTS) $(AVX_COPTS) $^ -o $@
-stream_avx2.bin: $(AVX2_OBJS)
-	$(CC) $(COMMON_COPTS) $(AVX2_COPTS) $^ -o $@
-stream_avx512.bin: $(AVX512_OBJS)
-	$(CC) $(COMMON_COPTS) $(AVX512_COPTS) $^ -o $@
+stream_neoverse_n1.bin: $(NEOVERSE_N1_OBJS)
+	$(CC) $(COMMON_COPTS) $(NEOVERSE_N1_COPTS) $^ -o $@
+stream_neoverse_n2.bin: $(NEOVERSE_N2_OBJS)
+	$(CC) $(COMMON_COPTS) $(NEOVERSE_N2_COPTS) $^ -o $@
+stream_neoverse_v1.bin: $(NEOVERSE_V1_OBJS)
+	$(CC) $(COMMON_COPTS) $(NEOVERSE_V1_COPTS) $^ -o $@
+stream_cortex_a53.bin: $(CORTEX_A53_OBJS)
+	$(CC) $(COMMON_COPTS) $(CORTEX_A53_COPTS) $^ -o $@
+stream_cortex_a72.bin: $(CORTEX_A72_OBJS)
+	$(CC) $(COMMON_COPTS) $(CORTEX_A72_COPTS) $^ -o $@
 
 help:
 	@echo -e "Running 'make' with no options would compile the STREAM benchmark with $(STREAM_ARRAY_SIZE) FP64 elements per array for following Intel CPU's:\n"
