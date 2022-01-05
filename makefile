@@ -24,8 +24,12 @@ NEOVERSE_N2_COPTS      = -mcpu=neoverse-n2 -mtune=neoverse-n2
 NEOVERSE_V1_COPTS      = -mcpu=neoverse-v1 -mtune=neoverse-v1
 CORTEX_A53_COPTS       = -mcpu=cortex-a53 -mtune=cortex-a53
 CORTEX_A72_COPTS       = -mcpu=cortex-a72 -mtune=cortex-a72
-WESTMERE_COPTS         = -mcpu=westmere -mtune=westmere
-HASWELL_COPTS          = -mcpu=haswell -mtune=haswell
+WESTMERE_COPTS         = -march=westmere -mcpu=westmere -mtune=westmere
+HASWELL_COPTS          = -march=haswell -mcpu=haswell -mtune=haswell
+SKYLAKE_COPTS          = -march=skylake -mcpu=skylake -mtune=skylake
+ZEN2_COPTS             = -march=znver2 -mcpu=znver2 -mtune=znver2
+ZEN3_COPTS             = -march=znver3 -mcpu=znver3 -mtune=znver3
+ICELAKE_COPTS          = -march=icelake-client -mcpu=icelake-client -mtune=icelake-client
 
 # Common Intel Compiler options that are independent of ISA
 COMMON_COPTS   = -Wall -Ofast -fopenmp -ftree-vectorize -fomit-frame-pointer -flto
@@ -37,6 +41,10 @@ CORTEX_A53_OBJS        = stream_cortex_a53.o
 CORTEX_A72_OBJS        = stream_cortex_a72.o
 WESTMERE_OBJS          = stream_westmere.o
 HASWELL_OBJS           = stream_haswell.o
+SKYLAKE_OBJS           = stream_skylake.o
+ZEN2_OBJS              = stream_znver2.o
+ZEN3_OBJS              = stream_znver3.o
+ICELAKE_OBJS           = stream_icelake.o
 
 ifdef cpu
 all: stream_$(cpu).bin
@@ -60,6 +68,14 @@ stream_westmere.o: $(SRC)
 	$(CC) $(COMMON_COPTS) $(WESTMERE_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
 stream_haswell.o: $(SRC)
 	$(CC) $(COMMON_COPTS) $(HASWELL_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
+stream_skylake.o: $(SRC)
+	$(CC) $(COMMON_COPTS) $(SKYLAKE_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
+stream_znver2.o: $(SRC)
+	$(CC) $(COMMON_COPTS) $(ZEN2_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
+stream_znver3.o: $(SRC)
+	$(CC) $(COMMON_COPTS) $(ZEN3_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
+stream_icelake.o: $(SRC)
+	$(CC) $(COMMON_COPTS) $(ICELAKE_COPTS) $(STREAM_CPP_OPTS) -c $(SRC) -o $@
 
 
 stream_neoverse_n1.bin: $(NEOVERSE_N1_OBJS)
@@ -76,6 +92,14 @@ stream_westmere.bin: $(WESTMERE_OBJS)
 	$(CC) $(COMMON_COPTS) $(WESTMERE_COPTS) $^ -o $@
 stream_haswell.bin: $(HASWELL_OBJS)
 	$(CC) $(COMMON_COPTS) $(HASWELL_COPTS) $^ -o $@
+stream_skylake.bin: $(SKYLAKE_OBJS)
+	$(CC) $(COMMON_COPTS) $(SKYLAKE_COPTS) $^ -o $@
+stream_znver2.bin: $(ZEN2_OBJS)
+	$(CC) $(COMMON_COPTS) $(ZEN2_COPTS) $^ -o $@
+stream_znver3.bin: $(ZEN3_OBJS)
+	$(CC) $(COMMON_COPTS) $(ZEN3_COPTS) $^ -o $@
+stream_icelake.bin: $(ICELAKE_OBJS)
+	$(CC) $(COMMON_COPTS) $(ICELAKE_COPTS) $^ -o $@
 
 
 help:
